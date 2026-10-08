@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>RainCoreScene</RootNamespace>
+    <AssemblyName>RainCore.Scene</AssemblyName>
+  </PropertyGroup>
+
+                                                                         
+                                                                         
+                                                                 
+  <ItemGroup>
+    <PackageReference Include="ImGui.NET" Version="1.91.6.1" PrivateAssets="all" />
+    <PackageReference Include="OpenTK" Version="4.8.2" />
+    <PackageReference Include="StbImageSharp" Version="2.30.15" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RainCore.Graphics\RainCore.Graphics.csproj" />
+    <ProjectReference Include="..\RainCore.Audio\RainCore.Audio.csproj" />
+    <ProjectReference Include="..\RainCore.Core\RainCore.Core.csproj" />
+  </ItemGroup>
+
+</Project>

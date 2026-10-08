@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Brick",
+    "col": 6,
+    "row": 0,
+    "isSolid": true,
+    "isOpaque": true,
+    "isUnlit": false,
+    "color": [0.55, 0.25, 0.20]
+  },
+  {
+    "name": "GlowCrystal",
+    "col": 7,
+    "row": 0,
+    "isSolid": true,
+    "isOpaque": true,
+    "isUnlit": true,
+    "color": [0.55, 0.85, 1.0]
+  }
+]

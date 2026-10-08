@@ -1,0 +1,62 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+                                                                                  
+                                                                               
+                                                                             
+                                                                                 
+                                                                               
+                                                                            
+                                                          
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RootNamespace>RainCore.EditorApp</RootNamespace>
+    <AssemblyName>RainCore.EditorApp</AssemblyName>
+    <NoWarn>$(NoWarn);CA1416</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+                                                                           
+                                                                            
+                                                                           
+                                                                     
+                                                                        
+                                                   
+    <ProjectReference Include="..\RainCore.Scene\RainCore.Scene.csproj" />
+                                                                              
+                                                                         
+                                                                           
+                                                                       
+                                                                             
+                                                                        
+                                    
+    <ProjectReference Include="..\RainCore.Voxel\RainCore.Voxel.csproj" />
+    <ProjectReference Include="..\RainCore.Core\RainCore.Core.csproj" />
+    <ProjectReference Include="..\RainCore.Project\RainCore.Project.csproj" />
+    <ProjectReference Include="..\RainCore.Scripting\RainCore.Scripting.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+                                                                                   
+                                                                   
+    <PackageReference Include="OpenTK" Version="4.8.2" />
+                                                                             
+                                                                              
+                                                                          
+                                                                        
+    <PackageReference Include="ImGui.NET" Version="1.91.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+                                                                                
+                                                               
+    <None Update="Shaders\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
