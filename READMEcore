@@ -1,0 +1,210 @@
+# RainCore
+
+[English](README.md) | **Русский**
+
+Модульная библиотека на C# для создания 3D-игр поверх OpenTK. Разбита на отдельные сборки (графика, звук, ядро игровой логики, сцены, скрипты, UI, пошаговые бои), которые подключаются к вашей игре, и можно брать только то, что нужно. Заточена под атмосферные игры в low-fi стиле: рендер как на PS1/PS2, дримкор и backrooms, туман, дизеринг, привязка вершин к сетке.
+
+Поверх библиотек есть два готовых инструмента: редактор для сборки сцен и плеер для запуска проектов. Они необязательны, библиотеки работают и без них.
+
+## Что внутри
+
+### Библиотеки
+
+- **Ядро** (`RainCore.Core`): события, триггеры, сущности, настроение, камеры, контракты уровней.
+- **События**: система в стиле RPG Maker, команды событий, триггер-зоны, страницы, условия по флагам. NPC, постеры, интерактивные объекты, квесты, диалоги.
+- **Скрипты на Lua** (`RainCore.Scripting`, MoonSharp): для логики, которая не влезает в команды событий. API контролируемый, без `io` / `os`. Команды событий остаются, Lua их дополняет, а не заменяет.
+- **Система настроения**: mood-зоны и mood-события, которые меняют атмосферу при перемещении игрока.
+- **Уровни**: две реализации за общим интерфейсом `ILevel`, воксельный мир (`RainCore.Voxel`) и комната из мешей в стиле PS1/PS2 (`RainCore.Scene`).
+- **Графика, звук, UI**: рендер на OpenGL через OpenTK, звук на OpenAL с поддержкой Ogg, внутриигровой UI и текст.
+- **Игровые модули**: `IGameModule` позволяет проекту поставлять свой геймплейный код отдельной сборкой (пример в `RainCore.SampleModules`).
+- **Пошаговое ядро** для JRPG-боёв (`RainCore.TurnBased`).
+
+### Инструменты
+
+- **Редактор** (`RainCore.EditorApp`, ImGui.NET) в духе Unity / GameMaker:
+  - вкладки сцен, Scene Manager, панели Hierarchy / Inspector / Project
+  - гизмо (Move / Rotate / Scale), привязка к сетке, мультивыделение, Duplicate, префабы
+  - общий Undo/Redo и окно History
+  - свободная камера, Focus / Frame All, закладки камеры
+  - режимы освещения вьюпорта (Scene / Editor / Unlit / Wireframe)
+  - окно Environment: туман, ambient, экспозиция, PSX-привязка вершин и дизеринг, 11 пресетов
+  - встроенный редактор Lua-скриптов с проверкой синтаксиса
+  - Play Scene / Play Project / Play From Here, изменения откатываются при Stop
+  - Console и Diagnostics (нет Player Start, битые модели, ошибки Lua и т. д.)
+  - палитра команд (Ctrl+Shift+P) и поиск (Ctrl+K)
+  - страховочные копии несохранённых сцен
+  - **Build**: `dotnet publish` плеера (self-contained, один файл) и копирование контента проекта
+- **Player** (`RainCore.Player`): запускает проект и из редактора, и как отдельную сборку.
+
+## Использование как библиотеки
+
+Подключите нужные сборки к своей игре как ссылки на проекты:
+
+```xml
+<ItemGroup>
+  <ProjectReference Include="..\RainCore\RainCore.Core\RainCore.Core.csproj" />
+  <ProjectReference Include="..\RainCore\RainCore.Scripting\RainCore.Scripting.csproj" />
+</ItemGroup>
+```
+
+Пространство имён `RainCore`. `RainCore.Graphics`, `RainCore.Audio` и `RainCore.TurnBased` почти не зависят от остального и могут использоваться отдельно.
+
+## Структура
+
+| Проект | Назначение |
+|---|---|
+| `RainCore.Graphics` | Низкоуровневый рендер (OpenGL через OpenTK) |
+| `RainCore.Audio` | Звук (OpenAL, NVorbis) |
+| `RainCore.Core` | События, триггеры, сущности, настроение, камеры, контракты уровней |
+| `RainCore.Voxel` | Воксельный мир |
+| `RainCore.Scene` | Сцены из мешей / GLB |
+| `RainCore.UI` | Внутриигровой UI, рендер текста |
+| `RainCore.Project` | Формат проекта и загрузка |
+| `RainCore.Scripting` | Lua (MoonSharp) |
+| `RainCore.TurnBased` | Логика пошаговых боёв |
+| `RainCore.EditorApp` | Редактор |
+| `RainCore.Player` | Запуск игры |
+| `RainCore.SampleModules` | Пример игрового модуля (смена дня и ночи) |
+
+## Требования
+
+- .NET 8 SDK
+- Видеокарта с поддержкой OpenGL
+- Редактор сейчас собирается под `net8.0-windows` (часть диалогов только для Windows). Player собирается под обычный `net8.0`.
+
+## Быстрый старт
+
+```bash
+git clone <this-repo>
+cd RainCore
+dotnet build RainCore.sln
+
+# редактор
+dotnet run --project RainCore.EditorApp
+
+# плеер (передай папку проекта, либо запусти без аргументов и он возьмёт ./Project)
+dotnet run --project RainCore.Player -- path/to/project
+```
+
+Создай или открой проект в редакторе, поставь пол и пару стен, добавь Player Start и нажми Play.
+
+## Что не сделано
+
+Чего пока нет:
+
+- Не реализовано: subscenes, Scene Flow, визуальный граф в Event Editor, Material Editor, редактор анимаций, профайлер, hot-reload, переназначение клавиш, шаблоны проектов, объекты света и камеры.
+- Префабы это копии, а не связанные экземпляры. Правка файла префаба не обновляет уже поставленные объекты.
+- В редакторе скриптов нет подсветки синтаксиса и автодополнения.
+- Визуал призрака для mood-событий пока только пишется в лог.
+- Диалог выбора папки в редакторе работает только на Windows.
+- Мультиплеера нет.
+
+## Лицензия
+
+ee нет
+
+# RainCore
+
+**English** | [Русский](README.ru.md)
+
+A modular C# library for building 3D games on top of OpenTK. It is split into separate assemblies (graphics, audio, core game logic, scenes, scripting, UI, turn-based battles) that you reference from your own game and use as much or as little of as you need. It is aimed at atmospheric, low-fi games: PS1/PS2-style rendering, dreamcore and backrooms moods, fog, dithering, vertex snapping.
+
+On top of the libraries there are two ready-made tools: an editor for building scenes and a player for running projects. They are optional, the libraries work without them.
+
+## What's inside
+
+### Libraries
+
+- **Core** (`RainCore.Core`): events, triggers, entities, moods, cameras, level contracts.
+- **Events**: an RPG Maker-style system of event commands, trigger zones, pages and flag-based conditions. NPCs, posters, interactables, quests, dialogue.
+- **Lua scripting** (`RainCore.Scripting`, MoonSharp): for logic that is too complex for event commands. A controlled API, no `io` / `os`. Event commands remain, Lua is an addition, not a replacement.
+- **Mood system**: mood zones and mood events that change the atmosphere as the player moves.
+- **Levels**: two implementations behind a common `ILevel` interface, a voxel world (`RainCore.Voxel`) and a mesh room, PS1/PS2 style (`RainCore.Scene`).
+- **Graphics, Audio, UI**: OpenGL rendering through OpenTK, OpenAL audio with Ogg support, in-game UI and text.
+- **Game modules**: `IGameModule` lets your project ship its own gameplay code as a separate assembly (see `RainCore.SampleModules`).
+- **Turn-based** core for JRPG-style battles (`RainCore.TurnBased`).
+
+### Tools
+
+- **Editor** (`RainCore.EditorApp`, ImGui.NET) in the spirit of Unity / GameMaker:
+  - scene tabs, Scene Manager, Hierarchy / Inspector / Project panels
+  - gizmos (Move / Rotate / Scale), snapping, multi-select, Duplicate, prefabs
+  - shared Undo/Redo with a History window
+  - fly camera, Focus / Frame All, camera bookmarks
+  - viewport lighting modes (Scene / Editor / Unlit / Wireframe)
+  - Environment window: fog, ambient, exposure, PSX vertex snap and dither, 11 presets
+  - built-in Lua script editor with syntax check
+  - Play Scene / Play Project / Play From Here, changes are reverted on Stop
+  - Console and Diagnostics (missing Player Start, broken models, Lua errors, and so on)
+  - command palette (Ctrl+Shift+P) and search (Ctrl+K)
+  - autosave recovery for unsaved scenes
+  - **Build**: `dotnet publish` of the Player (self-contained, single file) plus a copy of the project content
+- **Player** (`RainCore.Player`): runs a project, both from the editor and as a standalone build.
+
+## Using it as a library
+
+Add the assemblies you need to your game as project references:
+
+```xml
+<ItemGroup>
+  <ProjectReference Include="..\RainCore\RainCore.Core\RainCore.Core.csproj" />
+  <ProjectReference Include="..\RainCore\RainCore.Scripting\RainCore.Scripting.csproj" />
+</ItemGroup>
+```
+
+The namespace is `RainCore`. `RainCore.Graphics`, `RainCore.Audio` and `RainCore.TurnBased` have almost no dependencies on the rest and can be used on their own.
+
+## Structure
+
+| Project | Purpose |
+|---|---|
+| `RainCore.Graphics` | Low-level rendering (OpenGL via OpenTK) |
+| `RainCore.Audio` | Audio (OpenAL, NVorbis) |
+| `RainCore.Core` | Events, triggers, entities, moods, cameras, level contracts |
+| `RainCore.Voxel` | Voxel world |
+| `RainCore.Scene` | Mesh / GLB scenes |
+| `RainCore.UI` | In-game UI, text rendering |
+| `RainCore.Project` | Project format and loading |
+| `RainCore.Scripting` | Lua (MoonSharp) |
+| `RainCore.TurnBased` | Turn-based battle logic |
+| `RainCore.EditorApp` | The editor |
+| `RainCore.Player` | The game runner |
+| `RainCore.SampleModules` | Example game module (day/night pilot) |
+
+## Requirements
+
+- .NET 8 SDK
+- A GPU with OpenGL support
+- The editor currently targets `net8.0-windows` (some dialogs are Windows-only). The Player targets plain `net8.0`.
+
+## Getting started
+
+```bash
+git clone <this-repo>
+cd RainCore
+dotnet build RainCore.sln
+
+# editor
+dotnet run --project RainCore.EditorApp
+
+# player (pass a project folder, or run without arguments to use ./Project)
+dotnet run --project RainCore.Player -- path/to/project
+```
+
+Create or open a project in the editor, add a few walls and a floor, place a Player Start, and press Play.
+
+## What's not done
+
+What is missing right now:
+
+- Not implemented: subscenes, Scene Flow, visual Event Editor graph, Material Editor, animation editor, profiler, hot reload, key rebinding, project templates, light and camera objects.
+- Prefabs are copies, not linked instances. Editing a prefab file does not update objects already placed.
+- Script editor has no syntax highlighting or autocomplete.
+- The ghost visual for mood events is only logged for now.
+- The editor's file dialog is Windows-only.
+- No multiplayer.
+
+
+## License
+
+idk
